@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Collision_Response_Affector", "Collision_Response_Affector\Collision_Response_Affector.vcproj", "{81DBAE7D-F5C3-42A9-8DD6-64C5517AF479}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Random_Direction_Affector", "Random_Direction_Affector\Random_Direction_Affector.vcproj", "{C90B2707-2D8E-421C-9CE2-6004DDBB188F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Color_Morph_Affector", "Color_Morph_Affector\Color_Morph_Affector.vcproj", "{0398A846-593E-4E3E-96D6-E41565A8B789}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scale_Affector", "Scale_Affector\Scale_Affector.vcproj", "{E9720D15-E9EA-4ADF-92A4-B97B9C478448}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FlameThrowerDemo", "FlameThrowerDemo\FlameThrowerDemo.vcproj", "{8B177751-F4D8-461B-9F34-E37A2211696F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SplineAffector", "SplineAffector\SplineAffector.vcproj", "{09672947-540A-4140-A10D-3E8430191F41}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testIntergration", "testIntergration\testIntergration.vcproj", "{C972ACA5-4AB9-44A7-9A34-BE6A9A0B6B19}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{81DBAE7D-F5C3-42A9-8DD6-64C5517AF479}.Debug|Win32.ActiveCfg = Debug|Win32
+		{81DBAE7D-F5C3-42A9-8DD6-64C5517AF479}.Debug|Win32.Build.0 = Debug|Win32
+		{81DBAE7D-F5C3-42A9-8DD6-64C5517AF479}.Release|Win32.ActiveCfg = Release|Win32
+		{81DBAE7D-F5C3-42A9-8DD6-64C5517AF479}.Release|Win32.Build.0 = Release|Win32
+		{C90B2707-2D8E-421C-9CE2-6004DDBB188F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C90B2707-2D8E-421C-9CE2-6004DDBB188F}.Debug|Win32.Build.0 = Debug|Win32
+		{C90B2707-2D8E-421C-9CE2-6004DDBB188F}.Release|Win32.ActiveCfg = Release|Win32
+		{C90B2707-2D8E-421C-9CE2-6004DDBB188F}.Release|Win32.Build.0 = Release|Win32
+		{0398A846-593E-4E3E-96D6-E41565A8B789}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0398A846-593E-4E3E-96D6-E41565A8B789}.Debug|Win32.Build.0 = Debug|Win32
+		{0398A846-593E-4E3E-96D6-E41565A8B789}.Release|Win32.ActiveCfg = Release|Win32
+		{0398A846-593E-4E3E-96D6-E41565A8B789}.Release|Win32.Build.0 = Release|Win32
+		{E9720D15-E9EA-4ADF-92A4-B97B9C478448}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E9720D15-E9EA-4ADF-92A4-B97B9C478448}.Debug|Win32.Build.0 = Debug|Win32
+		{E9720D15-E9EA-4ADF-92A4-B97B9C478448}.Release|Win32.ActiveCfg = Release|Win32
+		{E9720D15-E9EA-4ADF-92A4-B97B9C478448}.Release|Win32.Build.0 = Release|Win32
+		{8B177751-F4D8-461B-9F34-E37A2211696F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8B177751-F4D8-461B-9F34-E37A2211696F}.Debug|Win32.Build.0 = Debug|Win32
+		{8B177751-F4D8-461B-9F34-E37A2211696F}.Release|Win32.ActiveCfg = Release|Win32
+		{8B177751-F4D8-461B-9F34-E37A2211696F}.Release|Win32.Build.0 = Release|Win32
+		{09672947-540A-4140-A10D-3E8430191F41}.Debug|Win32.ActiveCfg = Debug|Win32
+		{09672947-540A-4140-A10D-3E8430191F41}.Debug|Win32.Build.0 = Debug|Win32
+		{09672947-540A-4140-A10D-3E8430191F41}.Release|Win32.ActiveCfg = Release|Win32
+		{09672947-540A-4140-A10D-3E8430191F41}.Release|Win32.Build.0 = Release|Win32
+		{C972ACA5-4AB9-44A7-9A34-BE6A9A0B6B19}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C972ACA5-4AB9-44A7-9A34-BE6A9A0B6B19}.Debug|Win32.Build.0 = Debug|Win32
+		{C972ACA5-4AB9-44A7-9A34-BE6A9A0B6B19}.Release|Win32.ActiveCfg = Release|Win32
+		{C972ACA5-4AB9-44A7-9A34-BE6A9A0B6B19}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

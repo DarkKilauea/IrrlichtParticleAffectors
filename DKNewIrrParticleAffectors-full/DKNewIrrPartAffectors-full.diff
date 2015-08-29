@@ -1,0 +1,2228 @@
+Index: include/IParticleAffector.h
+===================================================================
+--- include/IParticleAffector.h	(revision 1386)
++++ include/IParticleAffector.h	(working copy)
+@@ -21,6 +21,11 @@
+ 	EPAT_FADE_OUT,
+ 	EPAT_GRAVITY,
+ 	EPAT_ROTATE,
++	EPAT_COLLISION,
++	EPAT_COLOR_MORPH,
++	EPAT_RANDOM_DIRECTION,
++	EPAT_SCALE,
++	EPAT_SPLINE,
+ 	EPAT_COUNT
+ };
+ 
+@@ -32,6 +37,11 @@
+ 	"FadeOut",
+ 	"Gravity",
+ 	"Rotate",
++	"Collision",
++	"ColorMorph",
++	"RandomDirection",
++	"Scale",
++	"Spline",
+ 	0
+ };
+ 
+Index: include/IParticleCollisionResponseAffector.h
+===================================================================
+--- include/IParticleCollisionResponseAffector.h	(revision 0)
++++ include/IParticleCollisionResponseAffector.h	(revision 0)
+@@ -0,0 +1,35 @@
++#ifndef __I_PARTICLE_COLLISION_RESPONSE_AFFECTOR_H_INCLUDED__
++#define __I_PARTICLE_COLLISION_RESPONSE_AFFECTOR_H_INCLUDED__
++
++#include "IParticleAffector.h"
++#include "ITriangleSelector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class IParticleCollisionResponseAffector : public IParticleAffector
++{
++public:
++
++	//! Sets the surface the particles with collide with.
++	virtual void setWorld(ITriangleSelector* selector) = 0;
++
++	//! Gets the collision surface this affector is using to collide particles against
++	virtual const ITriangleSelector* getWorld() const = 0;
++
++	//! Sets the bounce coefficient
++	virtual void setBounce(f32 bounce) = 0;
++
++	//! Gets the bounce coefficient
++	virtual const f32 getBounce() const = 0;
++
++	//! Get emitter type
++	virtual E_PARTICLE_AFFECTOR_TYPE getType() const { return EPAT_COLLISION; }
++};
++
++}; // end namespace scene
++}; // end namespace irr
++
++#endif // __I_PARTICLE_COLLISION_RESPONSE_AFFECTOR_H_INCLUDED__
+Index: include/IParticleColorMorphAffector.h
+===================================================================
+--- include/IParticleColorMorphAffector.h	(revision 0)
++++ include/IParticleColorMorphAffector.h	(revision 0)
+@@ -0,0 +1,42 @@
++#ifndef __I_PARTICLE_COLOR_MORPH_AFFECTOR_H_INCLUDED__
++#define __I_PARTICLE_COLOR_MORPH_AFFECTOR_H_INCLUDED__
++
++#include "IParticleAffector.h"
++#include "irrArray.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class IParticleColorMorphAffector : public IParticleAffector
++{
++public:
++
++	//! Gets Color Array
++	virtual const core::array<video::SColor>& getColorArray() const = 0;
++
++	//! Sets Color Array
++	virtual void setColorArray( core::array<video::SColor>& colorArray ) = 0;
++
++	//! Gets Time Array
++	virtual const core::array<u32>& getTimeArray() const = 0;
++
++	//! Sets Time Array
++	virtual void setColorArray( core::array<u32>& timeArray ) = 0;
++
++	//! Returns whether smooth is enabled
++	virtual bool isSmooth() const = 0;
++
++	//! Sets smooth
++	virtual void setSmooth( bool smooth = true ) = 0;
++
++	//! Gets emitter type
++	virtual E_PARTICLE_AFFECTOR_TYPE getType() const { return EPAT_COLOR_MORPH; }
++};
++
++}; // end namespace scene
++}; // end namespace irr
++
++#endif // __I_PARTICLE_COLOR_MORPH_AFFECTOR_H_INCLUDED__
++
+Index: include/IParticleEmitter.h
+===================================================================
+--- include/IParticleEmitter.h	(revision 1386)
++++ include/IParticleEmitter.h	(working copy)
+@@ -70,6 +70,12 @@
+ 	//! Set maximum starting color for particles
+ 	virtual void setMaxStartColor( const video::SColor& color ) = 0;
+ 
++	//! Set the maximum starting size for particles
++	virtual void setMaxStartSize( const core::vector2df& size ) = 0;
++
++	//! Set the minimum starting size for particles
++	virtual void setMinStartSize( const core::vector2df& size ) = 0;
++
+ 	//! Get direction the emitter emits particles
+ 	virtual const core::vector3df& getDirection() const = 0;
+ 
+@@ -85,6 +91,12 @@
+ 	//! Get the maximum starting color for particles
+ 	virtual const video::SColor& getMaxStartColor() const = 0;
+ 
++	//! Get the maximum starting size for particles
++	virtual const core::vector2df& getMaxStartSize() const = 0;
++
++	//! Get the minimum starting size for particles
++	virtual const core::vector2df& getMinStartSize() const = 0;
++
+ 	//! Writes attributes of the object.
+ 	//! Implement this to expose the attributes of your scene node animator for
+ 	//! scripting languages, editors, debuggers or xml serialization purposes.
+Index: include/IParticleRandomDirectionAffector.h
+===================================================================
+--- include/IParticleRandomDirectionAffector.h	(revision 0)
++++ include/IParticleRandomDirectionAffector.h	(revision 0)
+@@ -0,0 +1,36 @@
++#ifndef __I_PARTICLE_RANDOM_DIRECTION_AFFECTOR_H_INCLUDED__
++#define __I_PARTICLE_RANDOM_DIRECTION_AFFECTOR_H_INCLUDED__
++
++#include "IParticleAffector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class IParticleRandomDirectionAffector : public IParticleAffector
++{
++public:
++
++	//! Gets emitter type
++	virtual E_PARTICLE_AFFECTOR_TYPE getType() const { return EPAT_RANDOM_DIRECTION; }
++
++	//! Gets the amount the change in direction deviates from the particles' start vector
++	virtual f32 getScope() const = 0;
++
++	//! Gets how often the affector changes the particles' direction
++	virtual u32 getChangeFrequency() const = 0;
++
++	//! Sets the amount the change in direction deviates from the particles' start vector
++	virtual void setScope( f32 scope ) = 0;
++
++	//! Sets how often the affector changes the particles' direction
++	virtual void setChangeFrequency( u32 changeFrequency ) = 0;
++
++};
++
++}; // end namespace scene
++}; // end namespace irr
++
++#endif // __I_PARTICLE_RANDOM_DIRECTION_AFFECTOR_H_INCLUDED__
++
+Index: include/IParticleScaleAffector.h
+===================================================================
+--- include/IParticleScaleAffector.h	(revision 0)
++++ include/IParticleScaleAffector.h	(revision 0)
+@@ -0,0 +1,36 @@
++#ifndef __I_PARTICLE_SCALE_AFFECTOR_H_INCLUDED__
++#define __I_PARTICLE_SCALE_AFFECTOR_H_INCLUDED__
++
++#include "IParticleAffector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class IParticleScaleAffector : public IParticleAffector
++{
++public:
++
++	//! Get emitter type
++	virtual E_PARTICLE_AFFECTOR_TYPE getType() const { return EPAT_SCALE; }
++
++	//! Get target scale
++	virtual const core::vector2df& getTargetScale() const = 0;
++
++	//! Get time till particles are fully scaled
++	virtual u32 getTimeToFullyScaled() const = 0;
++
++	//! Set target scale
++	virtual void setTargetScale( const core::vector2df& targetScale ) = 0;
++
++	//! Set time till particles are fully scaled
++	virtual void setTimeToFullyScaled( u32 timeToFullyScaled ) = 0;
++
++};
++
++}; // end namespace scene
++}; // end namespace irr
++
++#endif // __I_PARTICLE_SCALE_AFFECTOR_H_INCLUDED__
++
+Index: include/IParticleSplineAffector.h
+===================================================================
+--- include/IParticleSplineAffector.h	(revision 0)
++++ include/IParticleSplineAffector.h	(revision 0)
+@@ -0,0 +1,55 @@
++#ifndef __I_PARTICLE_SPLINE_AFFECTOR_H_INCLUDED__
++#define __I_PARTICLE_SPLINE_AFFECTOR_H_INCLUDED__
++
++#include "IParticleAffector.h"
++#include "irrArray.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class IParticleSplineAffector : public IParticleAffector
++{
++public:
++
++	//! Gets emitter type
++	virtual E_PARTICLE_AFFECTOR_TYPE getType() const { return EPAT_SPLINE; }
++
++	//! Gets array of spline points
++	virtual const core::array<core::vector3df>& getPoints() const = 0;
++
++	//! Gets the speed of the particles along the spline
++	virtual f32 getSpeed() const = 0;
++
++	//! Gets the tightness of the spline
++	virtual f32 getTightness() const = 0;
++
++	//! Gets the attraction of the particles towards the spline
++	virtual f32 getAttraction() const = 0;
++
++	//! Gets whether the particles will self-distruct at the final spline point
++	virtual bool isDeleteAtFinalPoint() const = 0;
++
++	//! Sets array of spline points
++	virtual void setPoints( core::array<core::vector3df>& points ) = 0;
++
++	//! Sets the speed of the particles along the spline
++	virtual void setSpeed( f32 speed ) = 0;
++
++	//! Sets the tightness of the spline
++	virtual void setTightness( f32 tightness ) = 0;
++
++	//! Sets the attraction of the particles towards the spline
++	virtual void setAttraction( f32 attraction ) = 0;
++
++	//! Sets whether the particles will self-distruct at the final spline point
++	virtual void setDeleteAtFinalPoint( bool deleteAtFinalPoint ) = 0;
++
++};
++
++}; // end namespace scene
++}; // end namespace irr
++
++#endif // __I_PARTICLE_SPLINE_AFFECTOR_H_INCLUDED__
++
+Index: include/IParticleSystemSceneNode.h
+===================================================================
+--- include/IParticleSystemSceneNode.h	(revision 1386)
++++ include/IParticleSystemSceneNode.h	(working copy)
+@@ -16,6 +16,11 @@
+ #include "IParticleFadeOutAffector.h"
+ #include "IParticleGravityAffector.h"
+ #include "IParticleRotationAffector.h"
++#include "IParticleCollisionResponseAffector.h"
++#include "IParticleColorMorphAffector.h"
++#include "IParticleRandomDirectionAffector.h"
++#include "IParticleScaleAffector.h"
++#include "IParticleSplineAffector.h"
+ #include "dimension2d.h"
+ 
+ namespace irr
+@@ -25,7 +30,7 @@
+ 
+ //! A particle system scene node for creating snow, fire, exlosions, smoke...
+ /** A scene node controlling a particle System. The behavior of the particles
+-can be controlling by setting the right particle emitters and effectors.
++can be controlling by setting the right particle emitters and affectors.
+ You can for example easily a campfire by doing this:
+ 
+ \code
+@@ -124,6 +129,12 @@
+ 	\param lifeTimeMax: Maximal lifetime of a particle, in milliseconds.
+ 	\param maxAngleDegrees: Maximal angle in degrees, the emitting
+ 	direction of the particle will differ from the original direction.
++	\param minStartSize: Minimal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
++	\param maxStartSize: Maximal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
+ 	\return Pointer to the created particle emitter. To set this emitter
+ 	as new emitter of this particle system, just call setEmitter(). Note
+ 	that you'll have to drop() the returned pointer, after you don't need
+@@ -137,7 +148,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin = 2000, u32 lifeTimeMax = 4000,
+-		s32 maxAngleDegrees = 0 ) = 0;
++		s32 maxAngleDegrees = 0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) ) = 0;
+ 
+ 	//! Creates a box particle emitter.
+ 	/** \param box: The box for the emitter.
+@@ -156,6 +169,12 @@
+ 	\param lifeTimeMax: Maximal lifetime of a particle, in milliseconds.
+ 	\param maxAngleDegrees: Maximal angle in degrees, the emitting
+ 	direction of the particle will differ from the original direction.
++	\param minStartSize: Minimal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
++	\param maxStartSize: Maximal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
+ 	\return Pointer to the created particle emitter. To set this emitter
+ 	as new emitter of this particle system, just call setEmitter(). Note
+ 	that you'll have to drop() the returned pointer, after you don't need
+@@ -168,7 +187,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000, u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0) = 0;
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) ) = 0;
+ 
+ 	//! Creates a particle emitter for emitting from a cylinder
+ 	/** \param center: The center of the circle at the base of the cylinder
+@@ -192,6 +213,12 @@
+ 	\param lifeTimeMax: Maximal lifetime of a particle, in milliseconds.
+ 	\param maxAngleDegrees: Maximal angle in degrees, the emitting
+ 	direction of the particle will differ from the original direction.
++	\param minStartSize: Minimal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
++	\param maxStartSize: Maximal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
+ 	\return Pointer to the created particle emitter. To set this emitter
+ 	as new emitter of this particle system, just call setEmitter(). Note
+ 	that you'll have to drop() the returned pointer, after you don't need
+@@ -205,7 +232,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin = 2000, u32 lifeTimeMax = 4000,
+-		s32 maxAngleDegrees = 0 ) = 0;
++		s32 maxAngleDegrees = 0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) ) = 0;
+ 
+ 	//! Creates a mesh particle emitter.
+ 	/** \param mesh: Pointer to mesh to emit particles from
+@@ -240,6 +269,12 @@
+ 	\param lifeTimeMax: Maximal lifetime of a particle, in milliseconds.
+ 	\param maxAngleDegrees: Maximal angle in degrees, the emitting
+ 	direction of the particle will differ from the original direction.
++	\param minStartSize: Minimal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
++	\param maxStartSize: Maximal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
+ 	\return Pointer to the created particle emitter. To set this emitter
+ 	as new emitter of this particle system, just call setEmitter(). Note
+ 	that you'll have to drop() the returned pointer, after you don't need
+@@ -253,7 +288,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin = 2000, u32 lifeTimeMax = 4000,
+-		s32 maxAngleDegrees = 0 ) = 0;
++		s32 maxAngleDegrees = 0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) ) = 0;
+ 
+ 	//! Creates a point particle emitter.
+ 	/** \param direction: Direction and speed of particle emission.
+@@ -271,6 +308,12 @@
+ 	\param lifeTimeMax: Maximal lifetime of a particle, in milliseconds.
+ 	\param maxAngleDegrees: Maximal angle in degrees, the emitting
+ 	direction of the particle will differ from the original direction.
++	\param minStartSize: Minimal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
++	\param maxStartSize: Maximal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
+ 	\return Pointer to the created particle emitter. To set this emitter
+ 	as new emitter of this particle system, just call setEmitter(). Note
+ 	that you'll have to drop() the returned pointer, after you don't need
+@@ -282,7 +325,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000, u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0) = 0;
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) ) = 0;
+ 
+ 	//! Creates a ring particle emitter.
+ 	/** \param center: Center of ring
+@@ -305,6 +350,12 @@
+ 	\param lifeTimeMax: Maximal lifetime of a particle, in milliseconds.
+ 	\param maxAngleDegrees: Maximal angle in degrees, the emitting
+ 	direction of the particle will differ from the original direction.
++	\param minStartSize: Minimal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
++	\param maxStartSize: Maximal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
+ 	\return Pointer to the created particle emitter. To set this emitter
+ 	as new emitter of this particle system, just call setEmitter(). Note
+ 	that you'll have to drop() the returned pointer, after you don't need
+@@ -317,7 +368,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000, u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0) = 0;
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) ) = 0;
+ 
+ 	//! Creates a sphere particle emitter.
+ 	/** \param center: Center of sphere
+@@ -337,6 +390,12 @@
+ 	\param lifeTimeMax: Maximal lifetime of a particle, in milliseconds.
+ 	\param maxAngleDegrees: Maximal angle in degrees, the emitting
+ 	direction of the particle will differ from the original direction.
++	\param minStartSize: Minimal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
++	\param maxStartSize: Maximal initial start size of a particle. The
++	real size of every particle is calculated as random interpolation
++	between minStartSize and maxStartSize.
+ 	\return Pointer to the created particle emitter. To set this emitter
+ 	as new emitter of this particle system, just call setEmitter(). Note
+ 	that you'll have to drop() the returned pointer, after you don't need
+@@ -349,7 +408,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000, u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0) = 0;
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) ) = 0;
+ 
+ 	//! Creates a point attraction affector.
+ 	/** This affector modifies the positions of the particles and attracts
+@@ -419,6 +480,67 @@
+ 	virtual IParticleRotationAffector* createRotationAffector(
+ 		const core::vector3df& speed = core::vector3df(5.0f,5.0f,5.0f),
+ 		const core::vector3df& pivotPoint = core::vector3df(0.0f,0.0f,0.0f) ) = 0;
++
++	//! Creates a collision response affector.
++	/** This affector modifies the vectors of the particles upon a collision with the
++	triangle selector.
++	\param selector: Pointer to the selector used for the surface the particles
++	will collide with.
++	\param bounce: Amount of bounce given to the particles on collision.
++	1.0 means particles will bounce with the same velocity,
++	less than 1 means a reduction in bounce, and greater than 1 adds more bounce. */
++	virtual IParticleCollisionResponseAffector* createCollisionResponseAffector(
++		ITriangleSelector* selector, 
++		const f32 bounce = 1.0f ) = 0;
++
++	//! Creates a color morph affector.
++	/** This affector modifies the color of particles according to an array of SColors.
++	It can either interpolate these colors over the lifetime of the particle, or follow a set
++	of user defined times.
++	\param colorlist: Array of colors you want to be interpolated over the lifetime of the particles.
++	\param timelist: Overrides default behavior and forces each corresponding color to be set at the times in the array.
++	\param smooth: Whether to smoothly change from color to color.
++	*/
++	virtual IParticleColorMorphAffector* createColorMorphAffector(
++		core::array<video::SColor> colorlist, 
++		bool smooth = true, 
++		core::array<u32> timelist = core::array<u32>() ) = 0;
++
++	//! Creates a random direction affector.
++	/** This affector modifies the vector of particles with a random direction.
++	\param scope: How much the new random direction should vary from the starting direction
++	\param changeFrequency: How much time in ms before we apply a new random direction for all particles
++	*/
++	virtual IParticleRandomDirectionAffector* createRandomDirectionAffector(
++		f32 scope = 0.1, 
++		u32 changeFrequency = 500 ) = 0;
++
++	//! Creates a scale affector.
++	/** This affector modifies the size of individual particles to a target size.
++	\param targetScale: The size the particles should be at at the end of the time period.
++	\param timeToFullyScaled: If 0, the scale will be applied over the lifetime of the particle.
++	Otherwise, the particle will reach the new scale in this many ms.
++	*/
++	virtual IParticleScaleAffector* createScaleAffector(
++		core::vector2df& targetScale, 
++		u32 timeToFullyScaled = 0 ) = 0;
++
++	//! Creates a spline affector.
++	/** This affector attracts particles to follow along a user defined spline.
++	\param points: Array of points in the spline.
++	\param speed: How quickly the particles should move along the spline.
++	\param tightness: Affects the spline's tightness.  0.5 is usually fine.
++	\param attraction: How much the particles should try to stay with the spline.
++	High values tend to override other affectors.
++	\param deleteAtFinalPoint: If true, this will cause particles to self-distruct when they hit the final spline point.
++	*/
++	virtual IParticleSplineAffector* createSplineAffector(
++		core::array<core::vector3df> points,
++		f32 speed = 1.0f,
++		f32 tightness = 0.5f,
++		f32 attraction = 1.0f,
++		bool deleteAtFinalPoint = false ) = 0;
++
+ };
+ 
+ } // end namespace scene
+Index: include/SParticle.h
+===================================================================
+--- include/SParticle.h	(revision 1386)
++++ include/SParticle.h	(working copy)
+@@ -6,6 +6,7 @@
+ #define __S_PARTICLE_H_INCLUDED__
+ 
+ #include "vector3d.h"
++#include "vector2d.h"
+ #include "SColor.h"
+ 
+ namespace irr
+@@ -37,6 +38,18 @@
+ 		//! Original direction and speed of the particle.
+ 		/** The direction and speed the particle had when it was emitted. */
+ 		core::vector3df startVector;
++
++		//! Scale of the particle.
++		/** The direction and speed the particle had when it was emitted. */
++		core::vector2df size;
++
++		//! Original scale of the particle.
++		/** The scale of the particle when it was emitted. */
++		core::vector2df startSize;
++
++		//! User value.
++		/** Useful for affectors that want to keep track of particles.  Has no other effect. */
++		u8 user;
+ 	};
+ 
+ 
+Index: source/Irrlicht/CParticleAnimatedMeshSceneNodeEmitter.cpp
+===================================================================
+--- source/Irrlicht/CParticleAnimatedMeshSceneNodeEmitter.cpp	(revision 1386)
++++ source/Irrlicht/CParticleAnimatedMeshSceneNodeEmitter.cpp	(working copy)
+@@ -19,14 +19,16 @@
+ 		s32 mbNumber, bool everyMeshVertex,
+ 		u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
+ 		const video::SColor& minStartColor, const video::SColor& maxStartColor,
+-		u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees )
++		u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees,
++		const core::vector2df& minStartSize, const core::vector2df& maxStartSize )
+ 	: Node(node), TotalVertices(0), MBCount(0), MBNumber(mbNumber),
+ 	EveryMeshVertex(everyMeshVertex), UseNormalDirection(useNormalDirection),
+ 	NormalDirectionModifier(normalDirectionModifier), Direction(direction),
+ 	MinParticlesPerSecond(minParticlesPerSecond), MaxParticlesPerSecond(maxParticlesPerSecond),
+ 	MinStartColor(minStartColor), MaxStartColor(maxStartColor),
+ 	MinLifeTime(lifeTimeMin), MaxLifeTime(lifeTimeMax),
+-	Time(0), Emitted(0), MaxAngleDegrees(maxAngleDegrees)
++	Time(0), Emitted(0), MaxAngleDegrees(maxAngleDegrees),
++	MaxStartSize(maxStartSize), MinStartSize(minStartSize)
+ {
+ 
+ 	#ifdef _DEBUG
+@@ -106,6 +108,12 @@
+ 						p.startColor = p.color;
+ 						p.startVector = p.vector;
+ 
++						p.startSize = MinStartSize.getInterpolated(
++							MaxStartSize, (os::Randomizer::rand() % 100) / 100.0f);
++						p.size = p.startSize;
++
++						p.user = 0;
++
+ 						Particles.push_back(p);
+ 					}
+ 				}
+@@ -154,6 +162,12 @@
+ 				p.startColor = p.color;
+ 				p.startVector = p.vector;
+ 
++				p.startSize = MinStartSize.getInterpolated(
++							MaxStartSize, (os::Randomizer::rand() % 100) / 100.0f);
++				p.size = p.startSize;
++
++				p.user = 0;
++
+ 				Particles.push_back(p);
+ 			}
+ 		}
+Index: source/Irrlicht/CParticleAnimatedMeshSceneNodeEmitter.h
+===================================================================
+--- source/Irrlicht/CParticleAnimatedMeshSceneNodeEmitter.h	(revision 1386)
++++ source/Irrlicht/CParticleAnimatedMeshSceneNodeEmitter.h	(working copy)
+@@ -32,7 +32,9 @@
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin = 2000,
+ 		u32 lifeTimeMax = 4000,
+-		s32 maxAngleDegrees = 0
++		s32 maxAngleDegrees = 0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f)
+ 	);
+ 
+ 	//! Prepares an array with new particles to emitt into the system
+@@ -67,6 +69,12 @@
+ 	//! Set maximum starting color for particles
+ 	virtual void setMaxStartColor( const video::SColor& color ) { MaxStartColor = color; }
+ 
++	//! Set the maximum starting size for particles
++	virtual void setMaxStartSize( const core::vector2df& size ) { MaxStartSize = size; };
++
++	//! Set the minimum starting size for particles
++	virtual void setMinStartSize( const core::vector2df& size ) { MinStartSize = size; };
++
+ 	//! Get Mesh we're emitting particles from
+ 	virtual const IAnimatedMeshSceneNode* getAnimatedMeshSceneNode() const { return Node; }
+ 
+@@ -95,6 +103,12 @@
+ 	//! Get the maximum starting color for particles
+ 	virtual const video::SColor& getMaxStartColor() const { return MaxStartColor; }
+ 
++	//! Get the maximum starting size for particles
++	virtual const core::vector2df& getMaxStartSize() const { return MaxStartSize; };
++
++	//! Get the minimum starting size for particles
++	virtual const core::vector2df& getMinStartSize() const { return MinStartSize; };
++
+ private:
+ 
+ 	IAnimatedMeshSceneNode* Node;
+@@ -113,6 +127,7 @@
+ 	u32 MinParticlesPerSecond, MaxParticlesPerSecond;
+ 	video::SColor MinStartColor, MaxStartColor;
+ 	u32 MinLifeTime, MaxLifeTime;
++	core::vector2df MaxStartSize, MinStartSize;
+ 
+ 	u32 Time;
+ 	u32 Emitted;
+Index: source/Irrlicht/CParticleBoxEmitter.cpp
+===================================================================
+--- source/Irrlicht/CParticleBoxEmitter.cpp	(revision 1386)
++++ source/Irrlicht/CParticleBoxEmitter.cpp	(working copy)
+@@ -18,12 +18,15 @@
+ 	const core::vector3df& direction, u32 minParticlesPerSecond,
+ 	u32 maxParticlesPerSecond,	video::SColor minStartColor,
+ 	video::SColor maxStartColor, u32 lifeTimeMin, u32 lifeTimeMax,
+-	s32 maxAngleDegrees)
++	s32 maxAngleDegrees,
++	const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+  : Box(box), Direction(direction), MinParticlesPerSecond(minParticlesPerSecond),
+ 	MaxParticlesPerSecond(maxParticlesPerSecond),
+ 	MinStartColor(minStartColor), MaxStartColor(maxStartColor),
+ 	MinLifeTime(lifeTimeMin), MaxLifeTime(lifeTimeMax), Time(0), Emitted(0),
+-	MaxAngleDegrees(maxAngleDegrees)
++	MaxAngleDegrees(maxAngleDegrees), MaxStartSize(maxStartSize),
++	MinStartSize(minStartSize)
+ {
+ 	#ifdef _DEBUG
+ 	setDebugName("CParticleBoxEmitter");
+@@ -82,6 +85,12 @@
+ 			p.startColor = p.color;
+ 			p.startVector = p.vector;
+ 
++			p.startSize = MinStartSize.getInterpolated(
++				MaxStartSize, (os::Randomizer::rand() % 100) / 100.0f);
++			p.size = p.startSize;
++
++			p.user = 0;
++
+ 			Particles.push_back(p);
+ 		}
+ 
+Index: source/Irrlicht/CParticleBoxEmitter.h
+===================================================================
+--- source/Irrlicht/CParticleBoxEmitter.h	(revision 1386)
++++ source/Irrlicht/CParticleBoxEmitter.h	(working copy)
+@@ -29,7 +29,10 @@
+ 		video::SColor maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000,
+ 		u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0);
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) 
++		);
+ 
+ 	//! Prepares an array with new particles to emitt into the system
+ 	//! and returns how much new particles there are.
+@@ -50,6 +53,12 @@
+ 	//! Set maximum start color.
+ 	virtual void setMaxStartColor( const video::SColor& color ) { MaxStartColor = color; }
+ 
++	//! Set the maximum starting size for particles
++	virtual void setMaxStartSize( const core::vector2df& size ) { MaxStartSize = size; };
++
++	//! Set the minimum starting size for particles
++	virtual void setMinStartSize( const core::vector2df& size ) { MinStartSize = size; };
++
+ 	//! Set box from which the particles are emitted.
+ 	virtual void setBox( const core::aabbox3df& box ) { Box = box; }
+ 
+@@ -68,6 +77,12 @@
+ 	//! Gets maximum start color.
+ 	virtual const video::SColor& getMaxStartColor() const { return MaxStartColor; }
+ 
++	//! Gets the maximum starting size for particles
++	virtual const core::vector2df& getMaxStartSize() const { return MaxStartSize; };
++
++	//! Gets the minimum starting size for particles
++	virtual const core::vector2df& getMinStartSize() const { return MinStartSize; };
++
+ 	//! Get box from which the particles are emitted.
+ 	virtual const core::aabbox3df& getBox() const { return Box; }
+ 
+@@ -82,6 +97,7 @@
+ 	core::array<SParticle> Particles;
+ 	core::aabbox3df Box;
+ 	core::vector3df Direction;
++	core::vector2df MaxStartSize, MinStartSize;
+ 	u32 MinParticlesPerSecond, MaxParticlesPerSecond;
+ 	video::SColor MinStartColor, MaxStartColor;
+ 	u32 MinLifeTime, MaxLifeTime;
+Index: source/Irrlicht/CParticleCollisionResponseAffector.cpp
+===================================================================
+--- source/Irrlicht/CParticleCollisionResponseAffector.cpp	(revision 0)
++++ source/Irrlicht/CParticleCollisionResponseAffector.cpp	(revision 0)
+@@ -0,0 +1,91 @@
++#include "CParticleCollisionResponseAffector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++CParticleCollisionResponseAffector::CParticleCollisionResponseAffector(ITriangleSelector* selector, f32 bounce) : World(selector), Bounce(bounce)
++{
++	if(World)
++		World->grab();
++}
++
++CParticleCollisionResponseAffector::~CParticleCollisionResponseAffector()
++{
++	if(World)
++		World->drop();
++}
++
++void CParticleCollisionResponseAffector::affect(u32 now, SParticle* particlearray, u32 count)
++{
++	if( !Enabled )
++		return;
++
++	for(u32 i=0; i<count; ++i)
++	{
++		//If we aren't moving, we obviously won't collide
++		if(particlearray[i].vector == core::vector3df(0,0,0))
++			continue;
++
++		core::vector3df v = particlearray[i].vector;
++		core::line3df line = core::line3df(particlearray[i].pos, v);
++		core::vector3df Intersection;
++
++		//Build Triangle List
++		TriangleArray.set_used(World->getTriangleCount());
++		World->getTriangles(TriangleArray.pointer(), World->getTriangleCount(), TriangleCount, line);
++		
++		//Create Bounding Box for our particle's motion
++		const f32 minX = core::min_(line.start.X, line.end.X);
++		const f32 maxX = core::max_(line.start.X, line.end.X);
++		const f32 minY = core::min_(line.start.Y, line.end.Y);
++		const f32 maxY = core::max_(line.start.Y, line.end.Y);
++		const f32 minZ = core::min_(line.start.Z, line.end.Z);
++		const f32 maxZ = core::max_(line.start.Z, line.end.Z);
++
++		//Test for possible collision (Broadpass)
++		for(s32 x=0; x<TriangleCount; x++)
++		{
++			const core::triangle3df & triangle = TriangleArray[x];
++
++			if(minX > triangle.pointA.X && minX > triangle.pointB.X && minX > triangle.pointC.X)
++				continue;
++			if(maxX < triangle.pointA.X && maxX < triangle.pointB.X && maxX < triangle.pointC.X)
++				continue;
++			if(minY > triangle.pointA.Y && minY > triangle.pointB.Y && minY > triangle.pointC.Y)
++				continue;
++			if(maxY < triangle.pointA.Y && maxY < triangle.pointB.Y && maxY < triangle.pointC.Y)
++				continue;
++			if(minZ > triangle.pointA.Z && minZ > triangle.pointB.Z && minZ > triangle.pointC.Z)
++				continue;
++			if(maxZ < triangle.pointA.Z && maxZ < triangle.pointB.Z && maxZ < triangle.pointC.Z)
++				continue;
++
++			//If we have a collision, set the reflection vector
++			if(TriangleArray[x].getIntersectionWithLimitedLine(line,Intersection))
++			{
++				core::vector3df n = triangle.getNormal().normalize();
++				particlearray[i].pos = Intersection;
++				particlearray[i].vector	-= 2*n*(n.dotProduct(v));
++
++				//Multiply by the bounce coefficient
++				particlearray[i].vector *= Bounce;
++			}
++		}
++	}
++
++}
++
++void CParticleCollisionResponseAffector::setWorld(ITriangleSelector *selector)
++{
++	if(World)
++		World->drop();
++	World = 0;
++	World = selector;
++	if(World)
++		World->grab();
++}
++
++}; // end namespace scene
++}; // end namespace irr
+\ No newline at end of file
+Index: source/Irrlicht/CParticleCollisionResponseAffector.h
+===================================================================
+--- source/Irrlicht/CParticleCollisionResponseAffector.h	(revision 0)
++++ source/Irrlicht/CParticleCollisionResponseAffector.h	(revision 0)
+@@ -0,0 +1,48 @@
++#ifndef __C_PARTICLE_COLLISION_RESPONSE_AFFECTOR_H_INCLUDED__
++#define __C_PARTICLE_COLLISION_RESPONSE_AFFECTOR_H_INCLUDED__
++
++#include "IParticleCollisionResponseAffector.h"
++#include "irrArray.h"
++#include "triangle3d.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class CParticleCollisionResponseAffector : public IParticleCollisionResponseAffector
++{
++public:
++
++	CParticleCollisionResponseAffector(ITriangleSelector* selector, f32 bounce = 1.0f);
++	~CParticleCollisionResponseAffector();
++
++	//! Affects a particle.
++	virtual void affect(u32 now, SParticle* particlearray, u32 count);
++
++	//! Sets the surface the particles with collide with.
++	/** \param selector: pointer to the new surface to replace the old one */
++	virtual void setWorld(ITriangleSelector* selector);
++
++	//! Gets the collision surface this affector is using
++	/** \return Pointer to the affectors currect collision surface */
++	virtual const ITriangleSelector* getWorld() const { return World; }
++
++	//! Sets the bounce coefficient
++	virtual void setBounce(f32 bounce) { Bounce = bounce; }
++
++	//! Gets the bounce coefficient
++	virtual const f32 getBounce() const { return Bounce; }
++
++protected:
++	ITriangleSelector* World;
++	core::array<core::triangle3df> TriangleArray;
++	s32 TriangleCount;
++	f32 Bounce;
++};
++
++}; // end namespace scene
++}; // end namespace irr
++
++#endif
++
+Index: source/Irrlicht/CParticleColorMorphAffector.cpp
+===================================================================
+--- source/Irrlicht/CParticleColorMorphAffector.cpp	(revision 0)
++++ source/Irrlicht/CParticleColorMorphAffector.cpp	(revision 0)
+@@ -0,0 +1,109 @@
++#include "CParticleColorMorphAffector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++//Constructor!
++CParticleColorMorphAffector::CParticleColorMorphAffector(core::array<video::SColor> colorlist, bool smooth, core::array<u32> timelist) : ColorList(colorlist), Smooth(smooth), TimeList(timelist)
++{
++}
++
++void CParticleColorMorphAffector::affect(u32 now, SParticle* particlearray, u32 count)
++{
++	if( !Enabled )
++		return;
++
++	//If empty, skip
++	if(ColorList.size() == 0)
++		return;
++
++	if(TimeList.size() > ColorList.size())
++		MaxIndex = ColorList.size()-1;
++	else
++		MaxIndex = TimeList.size()-1;
++
++	//Default behavior: Interpolates colors over the lifetime of the particle
++	if(TimeList.size() == 0)
++	{
++		for(u32 i=0; i<count; ++i)
++		{
++			video::SColor FinalColor;
++			f32 LifeTime = particlearray[i].endTime - particlearray[i].startTime;
++			f32 PercentofTime = (now-particlearray[i].startTime)/LifeTime;
++			
++			if(PercentofTime < 1)
++			{
++				f32 remainder = PercentofTime * (ColorList.size()-1);
++				u32 elementcount = remainder;
++				remainder -= elementcount;
++
++				if(Smooth)
++					FinalColor = ColorList[elementcount+1].getInterpolated(ColorList[elementcount].color,remainder);
++				else
++					FinalColor = ColorList[elementcount].color;
++
++				particlearray[i].color = FinalColor;
++			}
++			else
++				particlearray[i].color = ColorList[ColorList.size()-1].color;
++		}
++	}
++	//Override: Sets each color at the time specified.
++	else
++	{
++		for(u32 i=0; i<count; ++i)
++		{
++			video::SColor FinalColor;
++			f32 currectTime = (now-particlearray[i].startTime);
++
++			if(currectTime < TimeList[0])
++				continue;
++
++			if(currectTime > TimeList[MaxIndex])
++			{
++				particlearray[i].color = ColorList[MaxIndex].color;
++				continue;
++			}
++
++			u32 index = GetCurrentTimeSlice(currectTime);
++			f32 LifeTime = TimeList[index+1] - TimeList[index];
++			if(LifeTime == 0)
++				LifeTime = 1;
++
++			f32 percent = currectTime/LifeTime;
++			percent -= index-1;
++
++			if(percent < 1)
++			{
++				if(Smooth)
++					FinalColor = ColorList[index+1].getInterpolated(ColorList[index].color,percent);
++				else
++					FinalColor = ColorList[index].color;
++
++				particlearray[i].color = FinalColor;
++			}
++			else
++				particlearray[i].color = ColorList[index+1].color;
++		}
++	}
++
++}
++
++u32 CParticleColorMorphAffector::GetCurrentTimeSlice(u32 particleTime)
++{
++	for(u32 x=0; x<=MaxIndex; x++)
++	{
++		if(particleTime < TimeList[x])
++		{
++			return x;
++		}
++		else
++			return MaxIndex;
++	}
++	return MaxIndex;
++}
++
++}; // end namespace scene
++}; // end namespace irr
+Index: source/Irrlicht/CParticleColorMorphAffector.h
+===================================================================
+--- source/Irrlicht/CParticleColorMorphAffector.h	(revision 0)
++++ source/Irrlicht/CParticleColorMorphAffector.h	(revision 0)
+@@ -0,0 +1,51 @@
++#ifndef __C_PARTICLE_COLOR_MORPH_AFFECTOR_H_INCLUDED__
++#define __C_PARTICLE_COLOR_MORPH_AFFECTOR_H_INCLUDED__
++
++#include "IParticleColorMorphAffector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class CParticleColorMorphAffector : public IParticleColorMorphAffector
++{
++public:
++
++	CParticleColorMorphAffector(core::array<video::SColor> colorlist, 
++		bool smooth = true, 
++		core::array<u32> timelist = core::array<u32>());
++
++	//! Affects a particle.
++	virtual void affect(u32 now, SParticle* particlearray, u32 count);
++
++	//! Gets Color Array
++	virtual const core::array<video::SColor>& getColorArray() const { return ColorList; }
++
++	//! Sets Color Array
++	virtual void setColorArray( core::array<video::SColor>& colorArray ) { ColorList = colorArray; }
++
++	//! Gets Time Array
++	virtual const core::array<u32>& getTimeArray() const { return TimeList; }
++
++	//! Sets Time Array
++	virtual void setColorArray( core::array<u32>& timeArray ) { TimeList = timeArray; }
++
++	//! Returns whether smooth is enabled
++	virtual bool isSmooth() const { return Smooth; }
++
++	//! Sets smooth
++	virtual void setSmooth( bool smooth = true ) { Smooth = smooth; }
++
++protected:
++	core::array<video::SColor> ColorList;
++	core::array<u32> TimeList;
++	bool Smooth;
++	u32 GetCurrentTimeSlice(u32 particleTime);
++	u32 MaxIndex;
++};
++
++}; // end namespace scene
++}; // end namespace irr
++
++#endif
+Index: source/Irrlicht/CParticleCylinderEmitter.cpp
+===================================================================
+--- source/Irrlicht/CParticleCylinderEmitter.cpp	(revision 1386)
++++ source/Irrlicht/CParticleCylinderEmitter.cpp	(working copy)
+@@ -17,13 +17,16 @@
+ 	bool outlineOnly, const core::vector3df& direction,
+ 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
+ 	const video::SColor& minStartColor, const video::SColor& maxStartColor,
+-	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees)
++	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees,
++	const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+ 	: Center(center), Normal(normal), Radius(radius), Length(length), OutlineOnly( outlineOnly ),
+ 	Direction(direction), MinParticlesPerSecond(minParticlesPerSecond),
+ 	MaxParticlesPerSecond(maxParticlesPerSecond),
+ 	MinStartColor(minStartColor), MaxStartColor(maxStartColor),
+ 	MinLifeTime(lifeTimeMin), MaxLifeTime(lifeTimeMax), Time(0), Emitted(0),
+-	MaxAngleDegrees(maxAngleDegrees)
++	MaxAngleDegrees(maxAngleDegrees), MaxStartSize(maxStartSize),
++	MinStartSize(minStartSize)
+ {
+ 
+ 	#ifdef _DEBUG
+@@ -96,6 +99,12 @@
+ 			p.startColor = p.color;
+ 			p.startVector = p.vector;
+ 
++			p.startSize = MinStartSize.getInterpolated(
++				MaxStartSize, (os::Randomizer::rand() % 100) / 100.0f);
++			p.size = p.startSize;
++
++			p.user = 0;
++
+ 			Particles.push_back(p);
+ 		}
+ 
+Index: source/Irrlicht/CParticleCylinderEmitter.h
+===================================================================
+--- source/Irrlicht/CParticleCylinderEmitter.h	(revision 1386)
++++ source/Irrlicht/CParticleCylinderEmitter.h	(working copy)
+@@ -29,7 +29,10 @@
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000,
+ 		u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0);
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) 
++		);
+ 
+ 	//! Prepares an array with new particles to emitt into the system
+ 	//! and returns how much new particles there are.
+@@ -65,6 +68,12 @@
+ 	//! Set direction the emitter emits particles
+ 	virtual void setMaxStartColor( const video::SColor& color ) { MaxStartColor = color; }
+ 
++	//! Set the maximum starting size for particles
++	virtual void setMaxStartSize( const core::vector2df& size ) { MaxStartSize = size; };
++
++	//! Set the minimum starting size for particles
++	virtual void setMinStartSize( const core::vector2df& size ) { MinStartSize = size; };
++
+ 	//! Get the center of the cylinder
+ 	virtual const core::vector3df& getCenter() const { return Center; }
+ 
+@@ -95,6 +104,12 @@
+ 	//! Gets direction the emitter emits particles
+ 	virtual const video::SColor& getMaxStartColor() const { return MaxStartColor; }
+ 
++	//! Gets the maximum starting size for particles
++	virtual const core::vector2df& getMaxStartSize() const { return MaxStartSize; };
++
++	//! Gets the minimum starting size for particles
++	virtual const core::vector2df& getMinStartSize() const { return MinStartSize; };
++
+ private:
+ 
+ 	core::array<SParticle> Particles;
+@@ -106,6 +121,7 @@
+ 	bool OutlineOnly;
+ 
+ 	core::vector3df Direction;
++	core::vector2df MaxStartSize, MinStartSize;
+ 	u32 MinParticlesPerSecond, MaxParticlesPerSecond;
+ 	video::SColor MinStartColor, MaxStartColor;
+ 	u32 MinLifeTime, MaxLifeTime;
+Index: source/Irrlicht/CParticleMeshEmitter.cpp
+===================================================================
+--- source/Irrlicht/CParticleMeshEmitter.cpp	(revision 1386)
++++ source/Irrlicht/CParticleMeshEmitter.cpp	(working copy)
+@@ -19,14 +19,17 @@
+ 	s32 mbNumber, bool everyMeshVertex,
+ 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
+ 	const video::SColor& minStartColor, const video::SColor& maxStartColor,
+-	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees )
++	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees,
++	const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+ 	: Mesh(mesh), TotalVertices(0), MBCount(0), MBNumber(mbNumber),
+ 	EveryMeshVertex(everyMeshVertex), UseNormalDirection(useNormalDirection),
+ 	NormalDirectionModifier(normalDirectionModifier), Direction(direction),
+ 	MinParticlesPerSecond(minParticlesPerSecond), MaxParticlesPerSecond(maxParticlesPerSecond),
+ 	MinStartColor(minStartColor), MaxStartColor(maxStartColor),
+ 	MinLifeTime(lifeTimeMin), MaxLifeTime(lifeTimeMax),
+-	Time(0), Emitted(0), MaxAngleDegrees(maxAngleDegrees)
++	Time(0), Emitted(0), MaxAngleDegrees(maxAngleDegrees), 
++	MaxStartSize(maxStartSize), MinStartSize(minStartSize)
+ {
+ 
+ 	#ifdef _DEBUG
+@@ -99,6 +102,12 @@
+ 						p.startColor = p.color;
+ 						p.startVector = p.vector;
+ 
++						p.startSize = MinStartSize.getInterpolated(
++							MaxStartSize, (os::Randomizer::rand() % 100) / 100.0f);
++						p.size = p.startSize;
++
++						p.user = 0;
++
+ 						Particles.push_back(p);
+ 					}
+ 				}
+@@ -147,6 +156,12 @@
+ 				p.startColor = p.color;
+ 				p.startVector = p.vector;
+ 
++				p.startSize = MinStartSize.getInterpolated(
++					MaxStartSize, (os::Randomizer::rand() % 100) / 100.0f);
++				p.size = p.startSize;
++
++				p.user = 0;
++
+ 				Particles.push_back(p);
+ 			}
+ 		}
+Index: source/Irrlicht/CParticleMeshEmitter.h
+===================================================================
+--- source/Irrlicht/CParticleMeshEmitter.h	(revision 1386)
++++ source/Irrlicht/CParticleMeshEmitter.h	(working copy)
+@@ -33,7 +33,9 @@
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin = 2000,
+ 		u32 lifeTimeMax = 4000,
+-		s32 maxAngleDegrees = 0
++		s32 maxAngleDegrees = 0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f)
+ 	);
+ 
+ 	//! Prepares an array with new particles to emitt into the system
+@@ -68,6 +70,12 @@
+ 	//! Set maximum starting color for particles
+ 	virtual void setMaxStartColor( const video::SColor& color ) { MaxStartColor = color; }
+ 
++	//! Set the maximum starting size for particles
++	virtual void setMaxStartSize( const core::vector2df& size ) { MaxStartSize = size; };
++
++	//! Set the minimum starting size for particles
++	virtual void setMinStartSize( const core::vector2df& size ) { MinStartSize = size; };
++
+ 	//! Get Mesh we're emitting particles from
+ 	virtual const IMesh* getMesh() const { return Mesh; }
+ 
+@@ -96,6 +104,12 @@
+ 	//! Get the maximum starting color for particles
+ 	virtual const video::SColor& getMaxStartColor() const { return MaxStartColor; }
+ 
++	//! Gets the maximum starting size for particles
++	virtual const core::vector2df& getMaxStartSize() const { return MaxStartSize; };
++
++	//! Gets the minimum starting size for particles
++	virtual const core::vector2df& getMinStartSize() const { return MinStartSize; };
++
+ private:
+ 
+ 	const IMesh* Mesh;
+@@ -109,6 +123,7 @@
+ 	f32 NormalDirectionModifier;
+ 	core::array<SParticle> Particles;
+ 	core::vector3df Direction;
++	core::vector2df MaxStartSize, MinStartSize;
+ 	u32 MinParticlesPerSecond, MaxParticlesPerSecond;
+ 	video::SColor MinStartColor, MaxStartColor;
+ 	u32 MinLifeTime, MaxLifeTime;
+Index: source/Irrlicht/CParticlePointEmitter.cpp
+===================================================================
+--- source/Irrlicht/CParticlePointEmitter.cpp	(revision 1386)
++++ source/Irrlicht/CParticlePointEmitter.cpp	(working copy)
+@@ -16,12 +16,15 @@
+ 	const core::vector3df& direction, u32 minParticlesPerSecond,
+ 	u32 maxParticlesPerSecond, video::SColor minStartColor,
+ 	video::SColor maxStartColor, u32 lifeTimeMin, u32 lifeTimeMax,
+-	s32 maxAngleDegrees)
++	s32 maxAngleDegrees,
++	const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+  : Direction(direction), MinParticlesPerSecond(minParticlesPerSecond),
+ 	MaxParticlesPerSecond(maxParticlesPerSecond),
+ 	MinStartColor(minStartColor), MaxStartColor(maxStartColor),
+ 	MinLifeTime(lifeTimeMin), MaxLifeTime(lifeTimeMax),
+-	MaxAngleDegrees(maxAngleDegrees), Time(0), Emitted(0)
++	MaxAngleDegrees(maxAngleDegrees), MaxStartSize(maxStartSize),
++	MinStartSize(minStartSize), Time(0), Emitted(0)
+ {
+ 	#ifdef _DEBUG
+ 	setDebugName("CParticlePointEmitter");
+@@ -65,6 +68,13 @@
+ 
+ 		Particle.startColor = Particle.color;
+ 		Particle.startVector = Particle.vector;
++
++		Particle.startSize = MinStartSize.getInterpolated(
++			MaxStartSize, (os::Randomizer::rand() % 100) / 100.0f);
++		Particle.size = Particle.startSize;
++
++		Particle.user = 0;
++
+ 		outArray = &Particle;
+ 		return 1;
+ 	}
+Index: source/Irrlicht/CParticlePointEmitter.h
+===================================================================
+--- source/Irrlicht/CParticlePointEmitter.h	(revision 1386)
++++ source/Irrlicht/CParticlePointEmitter.h	(working copy)
+@@ -27,7 +27,9 @@
+ 		video::SColor maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000,
+ 		u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0);
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) );
+ 
+ 	//! Prepares an array with new particles to emitt into the system
+ 	//! and returns how much new particles there are.
+@@ -48,6 +50,12 @@
+ 	//! Set maximum start color.
+ 	virtual void setMaxStartColor( const video::SColor& color ) { MaxStartColor = color; }
+ 
++	//! Set the maximum starting size for particles
++	virtual void setMaxStartSize( const core::vector2df& size ) { MaxStartSize = size; };
++
++	//! Set the minimum starting size for particles
++	virtual void setMinStartSize( const core::vector2df& size ) { MinStartSize = size; };
++
+ 	//! Gets direction the emitter emits particles.
+ 	virtual const core::vector3df& getDirection() const { return Direction; }
+ 
+@@ -63,6 +71,12 @@
+ 	//! Gets maximum start color.
+ 	virtual const video::SColor& getMaxStartColor() const { return MaxStartColor; }
+ 
++	//! Gets the maximum starting size for particles
++	virtual const core::vector2df& getMaxStartSize() const { return MaxStartSize; };
++
++	//! Gets the minimum starting size for particles
++	virtual const core::vector2df& getMinStartSize() const { return MinStartSize; };
++
+ 	//! Writes attributes of the object.
+ 	virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const;
+ 
+@@ -77,6 +91,7 @@
+ 	video::SColor MinStartColor, MaxStartColor;
+ 	u32 MinLifeTime, MaxLifeTime;
+ 	s32 MaxAngleDegrees;
++	core::vector2df MaxStartSize, MinStartSize;
+ 
+ 	u32 Time;
+ 	u32 Emitted;
+Index: source/Irrlicht/CParticleRandomDirectionAffector.cpp
+===================================================================
+--- source/Irrlicht/CParticleRandomDirectionAffector.cpp	(revision 0)
++++ source/Irrlicht/CParticleRandomDirectionAffector.cpp	(revision 0)
+@@ -0,0 +1,43 @@
++#include "CParticleRandomDirectionAffector.h"
++#include "os.h"
++
++namespace irr
++{
++namespace scene
++{
++
++//Constructor!
++CParticleRandomDirectionAffector::CParticleRandomDirectionAffector(f32 scope, u32 changeFrequency) : Scope(scope), ChangeFrequency(changeFrequency), LastTime(0)
++{
++}
++
++void CParticleRandomDirectionAffector::affect(u32 now, SParticle* particlearray, u32 count)
++{
++	if( !Enabled )
++		return;
++
++	if( LastTime == 0)
++	{
++		LastTime = now;
++		return;
++	}
++
++	if(now-LastTime > ChangeFrequency)
++	{
++		LastTime = now;
++
++		for(u32 i=0; i<count; ++i)
++		{	
++			core::vector3df randomvector = core::vector3df(
++				os::Randomizer::rand() % 200-100,
++				os::Randomizer::rand() % 200-100,
++				os::Randomizer::rand() % 200-100).normalize();
++			core::vector3df finalpoint = randomvector.getInterpolated(particlearray[i].startVector,Scope);
++			particlearray[i].vector = finalpoint.setLength(particlearray[i].startVector.getLength());
++		}
++	}
++}
++
++}; // end namespace scene
++}; // end namespace irr
++
+Index: source/Irrlicht/CParticleRandomDirectionAffector.h
+===================================================================
+--- source/Irrlicht/CParticleRandomDirectionAffector.h	(revision 0)
++++ source/Irrlicht/CParticleRandomDirectionAffector.h	(revision 0)
+@@ -0,0 +1,42 @@
++#ifndef __C_PARTICLE_RANDOM_DIRECTION_AFFECTOR_H_INCLUDED__
++#define __C_PARTICLE_RANDOM_DIRECTION_AFFECTOR_H_INCLUDED__
++
++#include "IParticleRandomDirectionAffector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class CParticleRandomDirectionAffector : public IParticleRandomDirectionAffector
++{
++public:
++
++	CParticleRandomDirectionAffector(f32 scope = 0.1, u32 changeFrequency = 500);
++
++	//! Affects a particle.
++	virtual void affect(u32 now, SParticle* particlearray, u32 count);
++
++	//! Gets the amount the change in direction deviates from the particles' start vector
++	virtual f32 getScope() const { return Scope; }
++
++	//! Gets how often the affector changes the particles' direction
++	virtual u32 getChangeFrequency() const { return ChangeFrequency; }
++
++	//! Sets the amount the change in direction deviates from the particles' start vector
++	virtual void setScope( f32 scope ) { Scope = scope; }
++
++	//! Sets how often the affector changes the particles' direction
++	virtual void setChangeFrequency( u32 changeFrequency ) { ChangeFrequency = changeFrequency; }
++
++
++private:
++	f32 Scope;
++	u32 ChangeFrequency;
++	u32 LastTime;
++};
++
++}; // end namespace scene
++}; // end namespace irr
++
++#endif
+Index: source/Irrlicht/CParticleRingEmitter.cpp
+===================================================================
+--- source/Irrlicht/CParticleRingEmitter.cpp	(revision 1386)
++++ source/Irrlicht/CParticleRingEmitter.cpp	(working copy)
+@@ -16,12 +16,15 @@
+ 	const core::vector3df& direction, u32 minParticlesPerSecond,
+ 	u32 maxParticlesPerSecond, const video::SColor& minStartColor,
+ 	const video::SColor& maxStartColor, u32 lifeTimeMin, u32 lifeTimeMax,
+-	s32 maxAngleDegrees)
++	s32 maxAngleDegrees,
++	const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+ 	: Center(center), Radius(radius), RingThickness(ringThickness),
+ 		Direction(direction), MinParticlesPerSecond(minParticlesPerSecond),
+ 		MaxParticlesPerSecond(maxParticlesPerSecond), MinStartColor(minStartColor),
+ 		MaxStartColor(maxStartColor), MinLifeTime(lifeTimeMin), MaxLifeTime(lifeTimeMax),
+-		Time(0), Emitted(0), MaxAngleDegrees(maxAngleDegrees)
++		Time(0), Emitted(0), MaxAngleDegrees(maxAngleDegrees), 
++		MaxStartSize(maxStartSize), MinStartSize(minStartSize)
+ {
+ 	#ifdef _DEBUG
+ 	setDebugName("CParticleRingEmitter");
+@@ -86,6 +89,12 @@
+ 			p.startColor = p.color;
+ 			p.startVector = p.vector;
+ 
++			p.startSize = MinStartSize.getInterpolated(
++				MaxStartSize, (os::Randomizer::rand() % 100) / 100.0f);
++			p.size = p.startSize;
++
++			p.user = 0;
++
+ 			Particles.push_back(p);
+ 		}
+ 
+Index: source/Irrlicht/CParticleRingEmitter.h
+===================================================================
+--- source/Irrlicht/CParticleRingEmitter.h	(revision 1386)
++++ source/Irrlicht/CParticleRingEmitter.h	(working copy)
+@@ -28,7 +28,10 @@
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000,
+ 		u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0);
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f)
++		);
+ 
+ 	//! Prepares an array with new particles to emitt into the system
+ 	//! and returns how much new particles there are.
+@@ -49,6 +52,12 @@
+ 	//! Set maximum starting color for particles
+ 	virtual void setMaxStartColor( const video::SColor& color ) { MaxStartColor = color; }
+ 
++	//! Set the maximum starting size for particles
++	virtual void setMaxStartSize( const core::vector2df& size ) { MaxStartSize = size; };
++
++	//! Set the minimum starting size for particles
++	virtual void setMinStartSize( const core::vector2df& size ) { MinStartSize = size; };
++
+ 	//! Set the center of the ring
+ 	virtual void setCenter( const core::vector3df& center ) { Center = center; }
+ 
+@@ -73,6 +82,12 @@
+ 	//! Gets the maximum starting color for particles
+ 	virtual const video::SColor& getMaxStartColor() const { return MaxStartColor; }
+ 
++	//! Gets the maximum starting size for particles
++	virtual const core::vector2df& getMaxStartSize() const { return MaxStartSize; };
++
++	//! Gets the minimum starting size for particles
++	virtual const core::vector2df& getMinStartSize() const { return MinStartSize; };
++
+ 	//! Get the center of the ring
+ 	virtual const core::vector3df& getCenter() const { return Center; }
+ 
+@@ -91,6 +106,7 @@
+ 	f32 RingThickness;
+ 
+ 	core::vector3df Direction;
++	core::vector2df MaxStartSize, MinStartSize;
+ 	u32 MinParticlesPerSecond, MaxParticlesPerSecond;
+ 	video::SColor MinStartColor, MaxStartColor;
+ 	u32 MinLifeTime, MaxLifeTime;
+Index: source/Irrlicht/CParticleScaleAffector.cpp
+===================================================================
+--- source/Irrlicht/CParticleScaleAffector.cpp	(revision 0)
++++ source/Irrlicht/CParticleScaleAffector.cpp	(revision 0)
+@@ -0,0 +1,43 @@
++#include "CParticleScaleAffector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++CParticleScaleAffector::CParticleScaleAffector(core::vector2df& targetScale, u32 timeToFullyScaled) : TargetScale(targetScale), TimeToFullyScaled(timeToFullyScaled)
++{
++}
++
++void CParticleScaleAffector::affect(u32 now, SParticle* particlearray, u32 count)
++{
++	if( !Enabled )
++		return;
++
++	f32 LifeTime = 0;
++	f32 PercentofTime = 0;
++	core::vector2df scaledsize;
++
++	for(u32 i=0; i<count; ++i)
++	{
++		if(TimeToFullyScaled > 0)
++			LifeTime = TimeToFullyScaled;
++		else
++			LifeTime = particlearray[i].endTime - particlearray[i].startTime;
++
++		PercentofTime = (now-particlearray[i].startTime)/LifeTime;
++		scaledsize = particlearray[i].startSize*TargetScale;
++		
++		if(PercentofTime < 1)
++		{
++			particlearray[i].size = scaledsize.getInterpolated(particlearray[i].startSize,PercentofTime);
++		}
++		else
++			particlearray[i].size = scaledsize;
++	}
++
++}
++
++}; // end namespace scene
++}; // end namespace irr
++
+Index: source/Irrlicht/CParticleScaleAffector.h
+===================================================================
+--- source/Irrlicht/CParticleScaleAffector.h	(revision 0)
++++ source/Irrlicht/CParticleScaleAffector.h	(revision 0)
+@@ -0,0 +1,41 @@
++#ifndef __C_PARTICLE_SCALE_AFFECTOR_H_INCLUDED__
++#define __C_PARTICLE_SCALE_AFFECTOR_H_INCLUDED__
++
++#include "IParticleScaleAffector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class CParticleScaleAffector : public IParticleScaleAffector
++{
++public:
++
++	CParticleScaleAffector(core::vector2df& targetScale, u32 timeToFullyScaled = 0);
++
++	//! Affects a particle
++	virtual void affect(u32 now, SParticle* particlearray, u32 count);
++
++	//! Get target scale
++	virtual const core::vector2df& getTargetScale() const { return TargetScale; }
++
++	//! Get time till particles are fully scaled
++	virtual u32 getTimeToFullyScaled() const { return TimeToFullyScaled; }
++
++	//! Set target scale
++	virtual void setTargetScale( const core::vector2df& targetScale ) { TargetScale = targetScale; }
++
++	//! Set time till particles are fully scaled
++	virtual void setTimeToFullyScaled( u32 timeToFullyScaled ) { TimeToFullyScaled = timeToFullyScaled; }
++
++private:
++	core::vector2df TargetScale;
++	u32 TimeToFullyScaled;
++};
++
++}; // end namespace scene
++}; // end namespace irr
++
++#endif
++
+Index: source/Irrlicht/CParticleSphereEmitter.cpp
+===================================================================
+--- source/Irrlicht/CParticleSphereEmitter.cpp	(revision 1386)
++++ source/Irrlicht/CParticleSphereEmitter.cpp	(working copy)
+@@ -18,12 +18,15 @@
+ 	const core::vector3df& direction, u32 minParticlesPerSecond,
+ 	u32 maxParticlesPerSecond, const video::SColor& minStartColor,
+ 	const video::SColor& maxStartColor, u32 lifeTimeMin, u32 lifeTimeMax,
+-	s32 maxAngleDegrees)
++	s32 maxAngleDegrees,
++	const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+ 	: Center(center), Radius(radius), Direction(direction), MinParticlesPerSecond(minParticlesPerSecond),
+ 	MaxParticlesPerSecond(maxParticlesPerSecond),
+ 	MinStartColor(minStartColor), MaxStartColor(maxStartColor),
+ 	MinLifeTime(lifeTimeMin), MaxLifeTime(lifeTimeMax), Time(0), Emitted(0),
+-	MaxAngleDegrees(maxAngleDegrees)
++	MaxAngleDegrees(maxAngleDegrees), MaxStartSize(maxStartSize),
++	MinStartSize(minStartSize)
+ {
+ 
+ 	#ifdef _DEBUG
+@@ -89,6 +92,12 @@
+ 			p.startColor = p.color;
+ 			p.startVector = p.vector;
+ 
++			p.startSize = MinStartSize.getInterpolated(
++				MaxStartSize, (os::Randomizer::rand() % 100) / 100.0f);
++			p.size = p.startSize;
++
++			p.user = 0;
++
+ 			Particles.push_back(p);
+ 		}
+ 
+Index: source/Irrlicht/CParticleSphereEmitter.h
+===================================================================
+--- source/Irrlicht/CParticleSphereEmitter.h	(revision 1386)
++++ source/Irrlicht/CParticleSphereEmitter.h	(working copy)
+@@ -29,7 +29,9 @@
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000,
+ 		u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0);
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) );
+ 
+ 	//! Prepares an array with new particles to emitt into the system
+ 	//! and returns how much new particles there are.
+@@ -50,6 +52,12 @@
+ 	//! Set maximum start color
+ 	virtual void setMaxStartColor( const video::SColor& color ) { MaxStartColor = color; }
+ 
++	//! Set the maximum starting size for particles
++	virtual void setMaxStartSize( const core::vector2df& size ) { MaxStartSize = size; };
++
++	//! Set the minimum starting size for particles
++	virtual void setMinStartSize( const core::vector2df& size ) { MinStartSize = size; };
++
+ 	//! Set the center of the sphere for particle emissions
+ 	virtual void setCenter( const core::vector3df& center ) { Center = center; }
+ 
+@@ -71,6 +79,12 @@
+ 	//! Get maximum start color
+ 	virtual const video::SColor& getMaxStartColor() const { return MaxStartColor; }
+ 
++	//! Gets the maximum starting size for particles
++	virtual const core::vector2df& getMaxStartSize() const { return MaxStartSize; };
++
++	//! Gets the minimum starting size for particles
++	virtual const core::vector2df& getMinStartSize() const { return MinStartSize; };
++
+ 	//! Get the center of the sphere for particle emissions
+ 	virtual const core::vector3df& getCenter() const { return Center; }
+ 
+@@ -86,6 +100,7 @@
+ 
+ 	core::vector3df Direction;
+ 	u32 MinParticlesPerSecond, MaxParticlesPerSecond;
++	core::vector2df MaxStartSize, MinStartSize;
+ 	video::SColor MinStartColor, MaxStartColor;
+ 	u32 MinLifeTime, MaxLifeTime;
+ 
+Index: source/Irrlicht/CParticleSplineAffector.cpp
+===================================================================
+--- source/Irrlicht/CParticleSplineAffector.cpp	(revision 0)
++++ source/Irrlicht/CParticleSplineAffector.cpp	(revision 0)
+@@ -0,0 +1,65 @@
++#include "CParticleSplineAffector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++CParticleSplineAffector::CParticleSplineAffector(core::array<core::vector3df> points, f32 speed, f32 tightness, f32 attraction, bool deleteAtFinalPoint ) : Points(points), Speed(speed), Tightness(tightness), Attraction(attraction), DeleteAtFinalPoint(deleteAtFinalPoint)
++{
++}
++
++inline s32 CParticleSplineAffector::clamp(s32 idx, s32 size)
++{
++	return ( idx<0 ? size+idx : ( idx>=size ? idx-size : idx ) );
++}
++
++void CParticleSplineAffector::affect(u32 now, SParticle* particlearray, u32 count)
++{
++	if( !Enabled )
++		return;
++
++	const u32 pSize = Points.size();
++
++	if( pSize == 0 )
++		return;
++
++	for(u32 i=0; i<count; ++i)
++	{
++		const f32 dt = ( (now-particlearray[i].startTime) * Speed * 0.001f );
++		const f32 u = core::fract ( dt );
++		const s32 idx = core::floor32( dt ) % pSize;
++		//const f32 u = 0.001f * fmodf( dt, 1000.0f );
++
++		const core::vector3df& p0 = Points[ clamp( idx - 1, pSize ) ];
++		const core::vector3df& p1 = Points[ clamp( idx + 0, pSize ) ]; // starting point
++		const core::vector3df& p2 = Points[ clamp( idx + 1, pSize ) ]; // end point
++		const core::vector3df& p3 = Points[ clamp( idx + 2, pSize ) ];
++
++		// hermite polynomials
++		const f32 h1 = 2.0f * u * u * u - 3.0f * u * u + 1.0f;
++		const f32 h2 = -2.0f * u * u * u + 3.0f * u * u;
++		const f32 h3 = u * u * u - 2.0f * u * u + u;
++		const f32 h4 = u * u * u - u * u;
++
++		// tangents
++		const core::vector3df t1 = ( p2 - p0 ) * Tightness;
++		const core::vector3df t2 = ( p3 - p1 ) * Tightness;
++
++		const core::vector3df& finalpoint = (p1 * h1 + p2 * h2 + t1 * h3 + t2 * h4);
++
++		core::vector3df direction = (finalpoint - particlearray[i].pos).setLength(Attraction);
++		particlearray[i].pos += direction;
++
++		if(DeleteAtFinalPoint)
++		{
++			//If we touch the final point, tell the particle to self-distruct
++			if(particlearray[i].pos.getDistanceFrom(Points.getLast()) < 1)
++				particlearray[i].endTime = now+1;
++		}
++	}
++}
++
++}; // end namespace scene
++}; // end namespace irr
++
+Index: source/Irrlicht/CParticleSplineAffector.h
+===================================================================
+--- source/Irrlicht/CParticleSplineAffector.h	(revision 0)
++++ source/Irrlicht/CParticleSplineAffector.h	(revision 0)
+@@ -0,0 +1,63 @@
++#ifndef __C_PARTICLE_SPLINE_AFFECTOR_H_INCLUDED__
++#define __C_PARTICLE_SPLINE_AFFECTOR_H_INCLUDED__
++
++#include "IParticleSplineAffector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class CParticleSplineAffector : public IParticleSplineAffector
++{
++public:
++
++	CParticleSplineAffector( core::array<core::vector3df> points, f32 speed = 1.0f, f32 tightness = 0.5f, f32 attraction = 1.0f, bool deleteAtFinalPoint = false );
++
++	//! Affects a particle.
++	virtual void affect(u32 now, SParticle* particlearray, u32 count);
++
++	//! Gets array of spline points
++	virtual const core::array<core::vector3df>& getPoints() const { return Points; }
++
++	//! Gets the speed of the particles along the spline
++	virtual f32 getSpeed() const { return Speed; }
++
++	//! Gets the tightness of the spline
++	virtual f32 getTightness() const { return Tightness; }
++
++	//! Gets the attraction of the particles towards the spline
++	virtual f32 getAttraction() const { return Attraction; }
++
++	//! Gets whether the particles will self-distruct at the final spline point
++	virtual bool isDeleteAtFinalPoint() const { return DeleteAtFinalPoint; }
++
++	//! Sets array of spline points
++	virtual void setPoints( core::array<core::vector3df>& points ) { Points = points; }
++
++	//! Sets the speed of the particles along the spline
++	virtual void setSpeed( f32 speed ) { Speed = speed; }
++
++	//! Sets the tightness of the spline
++	virtual void setTightness( f32 tightness ) { Tightness = tightness; }
++
++	//! Sets the attraction of the particles towards the spline
++	virtual void setAttraction( f32 attraction ) { Attraction = attraction; }
++
++	//! Sets whether the particles will self-distruct at the final spline point
++	virtual void setDeleteAtFinalPoint( bool deleteAtFinalPoint ) { DeleteAtFinalPoint = deleteAtFinalPoint; }
++
++
++private:
++	core::array<core::vector3df> Points;
++	f32 Speed;
++	f32 Tightness;
++	f32 Attraction;
++	bool DeleteAtFinalPoint;
++	inline s32 clamp(s32 idx, s32 size);
++};
++
++}; // end namespace scene
++}; // end namespace irr
++
++#endif
+Index: source/Irrlicht/CParticleSystemSceneNode.cpp
+===================================================================
+--- source/Irrlicht/CParticleSystemSceneNode.cpp	(revision 1386)
++++ source/Irrlicht/CParticleSystemSceneNode.cpp	(working copy)
+@@ -19,6 +19,11 @@
+ #include "CParticleFadeOutAffector.h"
+ #include "CParticleGravityAffector.h"
+ #include "CParticleRotationAffector.h"
++#include "CParticleCollisionResponseAffector.h"
++#include "CParticleColorMorphAffector.h"
++#include "CParticleRandomDirectionAffector.h"
++#include "CParticleScaleAffector.h"
++#include "CParticleSplineAffector.h"
+ #include "SViewFrustum.h"
+ 
+ namespace irr
+@@ -119,14 +124,17 @@
+ 	s32 mbNumber, bool everyMeshVertex,
+ 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
+ 	const video::SColor& minStartColor, const video::SColor& maxStartColor,
+-	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees )
++	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees,
++	const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+ {
+ 	return new CParticleAnimatedMeshSceneNodeEmitter( node,
+ 			useNormalDirection, direction, normalDirectionModifier,
+ 			mbNumber, everyMeshVertex,
+ 			minParticlesPerSecond, maxParticlesPerSecond,
+ 			minStartColor, maxStartColor,
+-			lifeTimeMin, lifeTimeMax, maxAngleDegrees );
++			lifeTimeMin, lifeTimeMax, maxAngleDegrees,
++			minStartSize, maxStartSize );
+ }
+ 
+ 
+@@ -137,11 +145,13 @@
+ 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
+ 	const video::SColor& minStartColor, const video::SColor& maxStartColor,
+ 	u32 lifeTimeMin, u32 lifeTimeMax,
+-	s32 maxAngleDegrees)
++	s32 maxAngleDegrees, const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+ {
+ 	return new CParticleBoxEmitter(box, direction, minParticlesPerSecond,
+ 		maxParticlesPerSecond, minStartColor, maxStartColor,
+-		lifeTimeMin, lifeTimeMax, maxAngleDegrees);
++		lifeTimeMin, lifeTimeMax, maxAngleDegrees,
++			minStartSize, maxStartSize );
+ }
+ 
+ 
+@@ -152,13 +162,16 @@
+ 	bool outlineOnly, const core::vector3df& direction,
+ 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
+ 	const video::SColor& minStartColor, const video::SColor& maxStartColor,
+-	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees )
++	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees, 
++	const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+ {
+ 	return new CParticleCylinderEmitter( center, radius, normal, length,
+ 			outlineOnly, direction,
+ 			minParticlesPerSecond, maxParticlesPerSecond,
+ 			minStartColor, maxStartColor,
+-			lifeTimeMin, lifeTimeMax, maxAngleDegrees );
++			lifeTimeMin, lifeTimeMax, maxAngleDegrees,
++			minStartSize, maxStartSize );
+ }
+ 
+ 
+@@ -169,13 +182,16 @@
+ 	s32 mbNumber, bool everyMeshVertex,
+ 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
+ 	const video::SColor& minStartColor, const video::SColor& maxStartColor,
+-	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees )
++	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees,
++	const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize)
+ {
+ 	return new CParticleMeshEmitter( mesh, useNormalDirection, direction,
+ 			normalDirectionModifier, mbNumber, everyMeshVertex,
+ 			minParticlesPerSecond, maxParticlesPerSecond,
+ 			minStartColor, maxStartColor,
+-			lifeTimeMin, lifeTimeMax, maxAngleDegrees );
++			lifeTimeMin, lifeTimeMax, maxAngleDegrees,
++			minStartSize, maxStartSize );
+ }
+ 
+ 
+@@ -185,11 +201,13 @@
+ 	const core::vector3df& direction, u32 minParticlesPerSecond,
+ 	u32 maxParticlesPerSecond, const video::SColor& minStartColor,
+ 	const video::SColor& maxStartColor, u32 lifeTimeMin, u32 lifeTimeMax,
+-	s32 maxAngleDegrees)
++	s32 maxAngleDegrees, const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+ {
+ 	return new CParticlePointEmitter(direction, minParticlesPerSecond,
+ 		maxParticlesPerSecond, minStartColor, maxStartColor,
+-		lifeTimeMin, lifeTimeMax, maxAngleDegrees);
++		lifeTimeMin, lifeTimeMax, maxAngleDegrees,
++			minStartSize, maxStartSize );
+ }
+ 
+ 
+@@ -199,11 +217,13 @@
+ 	const core::vector3df& direction,
+ 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
+ 	const video::SColor& minStartColor, const video::SColor& maxStartColor,
+-	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees )
++	u32 lifeTimeMin, u32 lifeTimeMax, s32 maxAngleDegrees,
++	const core::vector2df& minStartSize, const core::vector2df& maxStartSize )
+ {
+ 	return new CParticleRingEmitter( center, radius, ringThickness, direction,
+ 		minParticlesPerSecond, maxParticlesPerSecond, minStartColor,
+-		maxStartColor, lifeTimeMin, lifeTimeMax, maxAngleDegrees );
++		maxStartColor, lifeTimeMin, lifeTimeMax, maxAngleDegrees,
++			minStartSize, maxStartSize );
+ }
+ 
+ 
+@@ -213,12 +233,14 @@
+ 	u32 minParticlesPerSecond, u32 maxParticlesPerSecond,
+ 	const video::SColor& minStartColor, const video::SColor& maxStartColor,
+ 	u32 lifeTimeMin, u32 lifeTimeMax,
+-	s32 maxAngleDegrees)
++	s32 maxAngleDegrees, const core::vector2df& minStartSize,
++	const core::vector2df& maxStartSize )
+ {
+ 	return new CParticleSphereEmitter(center, radius, direction,
+ 			minParticlesPerSecond, maxParticlesPerSecond,
+ 			minStartColor, maxStartColor,
+-			lifeTimeMin, lifeTimeMax, maxAngleDegrees);
++			lifeTimeMin, lifeTimeMax, maxAngleDegrees,
++			minStartSize, maxStartSize );
+ }
+ 
+ 
+@@ -257,8 +279,49 @@
+ 	return new CParticleRotationAffector( speed, pivotPoint );
+ }
+ 
++//! Creates a collision response affector.
++IParticleCollisionResponseAffector* CParticleSystemSceneNode::createCollisionResponseAffector(
++	ITriangleSelector *selector, const f32 bounce )
++{
++	return new CParticleCollisionResponseAffector( selector, bounce );
++}
+ 
++//! Creates a color morph affector.
++IParticleColorMorphAffector* CParticleSystemSceneNode::createColorMorphAffector(
++		core::array<video::SColor> colorlist, 
++		bool smooth, 
++		core::array<u32> timelist )
++{
++	return new CParticleColorMorphAffector( colorlist, smooth, timelist );
++}
+ 
++//! Creates a random direction affector.
++IParticleRandomDirectionAffector* CParticleSystemSceneNode::createRandomDirectionAffector(
++	f32 scope, 
++	u32 changeFrequency )
++{
++	return new CParticleRandomDirectionAffector( scope, changeFrequency );
++}
++
++//! Creates a scale affector.
++IParticleScaleAffector* CParticleSystemSceneNode::createScaleAffector(
++		core::vector2df& targetScale, 
++		u32 timeToFullyScaled )
++{
++	return new CParticleScaleAffector( targetScale, timeToFullyScaled );
++}
++
++//! Creates a spline affector.
++IParticleSplineAffector* CParticleSystemSceneNode::createSplineAffector(
++		core::array<core::vector3df> points,
++		f32 speed,
++		f32 tightness,
++		f32 attraction,
++		bool deleteAtFinalPoint )
++{
++	return new CParticleSplineAffector( points, speed, tightness, attraction, deleteAtFinalPoint );
++}
++
+ //! pre render event
+ void CParticleSystemSceneNode::OnRegisterSceneNode()
+ {
+@@ -288,28 +351,12 @@
+ 	core::vector3df view(camera->getTarget() - camera->getAbsolutePosition());
+ 	view.normalize();
+ 
+-	core::vector3df horizontal = camera->getUpVector().crossProduct(view);
+-	horizontal.normalize();
+-	horizontal *= 0.5f * ParticleSize.Width;
+-
+-	core::vector3df vertical = horizontal.crossProduct(view);
+-	vertical.normalize();
+-	vertical *= 0.5f * ParticleSize.Height;
+-
+ 	view *= -1.0f;
+ 
+ #else
+ 
+ 	const core::matrix4 &m = camera->getViewFrustum()->Matrices [ video::ETS_VIEW ];
+ 
+-	f32 f;
+-
+-	f = 0.5f * ParticleSize.Width;
+-	const core::vector3df horizontal ( m[0] * f, m[4] * f, m[8] * f );
+-
+-	f = -0.5f * ParticleSize.Height;
+-	const core::vector3df vertical ( m[1] * f, m[5] * f, m[9] * f );
+-
+ 	const core::vector3df view ( -m[2], -m[6] , -m[10] );
+ 
+ #endif
+@@ -323,6 +370,25 @@
+ 	{
+ 		const SParticle& particle = Particles[i];
+ 
++		#if 0
++			core::vector3df horizontal = camera->getUpVector().crossProduct(view);
++			horizontal.normalize();
++			horizontal *= 0.5f * particle.size.X;
++
++			core::vector3df vertical = horizontal.crossProduct(view);
++			vertical.normalize();
++			vertical *= 0.5f * particle.size.Y;
++
++		#else
++			f32 f;
++
++			f = 0.5f * particle.size.X;
++			const core::vector3df horizontal ( m[0] * f, m[4] * f, m[8] * f );
++
++			f = -0.5f * particle.size.Y;
++			const core::vector3df vertical ( m[1] * f, m[5] * f, m[9] * f );
++		#endif
++
+ 		Buffer.Vertices[0+idx].Pos = particle.pos + horizontal + vertical;
+ 		Buffer.Vertices[0+idx].Color = particle.color;
+ 		Buffer.Vertices[0+idx].Normal = view;
+@@ -466,6 +532,18 @@
+ //! Sets the size of all particles.
+ void CParticleSystemSceneNode::setParticleSize(const core::dimension2d<f32> &size)
+ {
++	//A bit of a hack, but it better here than in the particle code
++	//This duplicates the old bahavior exactly
++	//It will conflict with affectors changing the size of the particle!
++	core::vector2df tempsize;
++	tempsize.X = size.Width;
++	tempsize.Y = size.Height;
++	Emitter->setMaxStartSize(tempsize);
++	Emitter->setMinStartSize(tempsize);
++	for(u32 x=0; x<Particles.size(); x++)
++	{
++		Particles[x].size = tempsize;
++	}
+ 	ParticleSize = size;
+ }
+ 
+Index: source/Irrlicht/CParticleSystemSceneNode.h
+===================================================================
+--- source/Irrlicht/CParticleSystemSceneNode.h	(revision 1386)
++++ source/Irrlicht/CParticleSystemSceneNode.h	(working copy)
+@@ -67,7 +67,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin = 2000, u32 lifeTimeMax = 4000,
+-		s32 maxAngleDegrees = 0 );
++		s32 maxAngleDegrees = 0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) );
+ 
+ 	//! Creates a box particle emitter.
+ 	virtual IParticleBoxEmitter* createBoxEmitter(
+@@ -78,7 +80,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000, u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0);
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) );
+ 
+ 	//! Creates a particle emitter for emitting from a cylinder
+ 	virtual IParticleCylinderEmitter* createCylinderEmitter(
+@@ -89,7 +93,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin = 2000, u32 lifeTimeMax = 4000,
+-		s32 maxAngleDegrees = 0 );
++		s32 maxAngleDegrees = 0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) );
+ 
+ 	//! Creates a mesh particle emitter.
+ 	virtual IParticleMeshEmitter* createMeshEmitter(
+@@ -102,7 +108,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin = 2000, u32 lifeTimeMax = 4000,
+-		s32 maxAngleDegrees = 0 );
++		s32 maxAngleDegrees = 0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) );
+ 
+ 	//! Creates a point particle emitter.
+ 	virtual IParticlePointEmitter* createPointEmitter(
+@@ -112,7 +120,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000, u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0);
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) );
+ 
+ 	//! Creates a ring particle emitter.
+ 	virtual IParticleRingEmitter* createRingEmitter(
+@@ -123,7 +133,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000, u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0);
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) );
+ 
+ 	//! Creates a sphere particle emitter.
+ 	virtual IParticleSphereEmitter* createSphereEmitter(
+@@ -134,7 +146,9 @@
+ 		const video::SColor& minStartColor = video::SColor(255,0,0,0),
+ 		const video::SColor& maxStartColor = video::SColor(255,255,255,255),
+ 		u32 lifeTimeMin=2000, u32 lifeTimeMax=4000,
+-		s32 maxAngleDegrees=0);
++		s32 maxAngleDegrees=0,
++		const core::vector2df& minStartSize = core::vector2df(5.0f,5.0f),
++		const core::vector2df& maxStartSize = core::vector2df(5.0f,5.0f) );
+ 
+ 	//! Creates a point attraction affector. This affector modifies the positions of the
+ 	//! particles and attracts them to a specified point at a specified speed per second.
+@@ -158,6 +172,35 @@
+ 		const core::vector3df& speed = core::vector3df(5.0f,5.0f,5.0f),
+ 		const core::vector3df& pivotPoint = core::vector3df(0.0f,0.0f,0.0f) );
+ 
++	//! Creates a collision response affector.
++	virtual IParticleCollisionResponseAffector* createCollisionResponseAffector(
++		ITriangleSelector* selector, 
++		const f32 bounce = 1.0f );
++
++	//! Creates a color morph affector.
++	virtual IParticleColorMorphAffector* createColorMorphAffector(
++		core::array<video::SColor> colorlist, 
++		bool smooth = true, 
++		core::array<u32> timelist = core::array<u32>() );
++
++	//! Creates a random direction affector.
++	virtual IParticleRandomDirectionAffector* createRandomDirectionAffector(
++		f32 scope = 0.1, 
++		u32 changeFrequency = 500 );
++
++	//! Creates a scale affector.
++	virtual IParticleScaleAffector* createScaleAffector(
++		core::vector2df& targetScale, 
++		u32 timeToFullyScaled = 0 );
++
++	//! Creates a spline affector.
++	virtual IParticleSplineAffector* createSplineAffector(
++		core::array<core::vector3df> points,
++		f32 speed = 1.0f,
++		f32 tightness = 0.5f,
++		f32 attraction = 1.0f,
++		bool deleteAtFinalPoint = false );
++
+ 	//! Sets the size of all particles.
+ 	virtual void setParticleSize(
+ 		const core::dimension2d<f32> &size = core::dimension2d<f32>(5.0f, 5.0f));
